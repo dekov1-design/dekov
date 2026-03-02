@@ -49,12 +49,15 @@
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .user-name-main { font-size: 38px; font-weight: 900; letter-spacing: -2px; margin-top: 15px; text-transform: uppercase; }
 
-        /* MUSIC WIDGET */
-        .player { background: #121212; border-radius: 15px; padding: 12px 20px; width: 100%; max-width: 320px; margin: 25px auto; display: flex; align-items: center; gap: 15px; border: 1px solid #1DB954; }
-        .p-info { text-align: left; }
-        .p-name { color: #1DB954; font-size: 14px; font-weight: 800; display: block; }
-        .p-sub { font-size: 11px; opacity: 0.4; text-transform: uppercase; }
-
+        /* PLAYER WIDGET */
+        .player { background: #121212; border-radius: 15px; padding: 15px; width: 100%; max-width: 320px; margin: 25px auto; display: flex; flex-direction: column; gap: 10px; border: 1px solid #1DB954; }
+        .player-top { display: flex; align-items: center; gap: 12px; }
+        .p-info { text-align: left; flex-grow: 1; overflow: hidden; }
+        .p-name { color: #1DB954; font-size: 13px; font-weight: 800; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .p-sub { font-size: 10px; opacity: 0.4; text-transform: uppercase; }
+        
+        .play-btn { background: #1DB954; border: none; width: 35px; height: 35px; border-radius: 50%; color: #000; font-size: 12px; cursor: pointer; display: none; align-items: center; justify-content: center; font-weight: bold; }
+        
         /* GRID / FEED */
         .section-label { padding: 40px 20px 10px; font-size: 11px; letter-spacing: 3px; opacity: 0.4; font-weight: 900; text-transform: uppercase; }
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px; }
@@ -74,6 +77,8 @@
     </style>
 </head>
 <body id="main">
+
+    <audio id="audio-player"></audio>
 
     <div id="login-screen">
         <h1 class="logo-title">DEKOV</h1>
@@ -103,10 +108,16 @@
                 <h1 id="v-name" class="user-name-main">...</h1>
                 
                 <div class="player">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" width="25">
-                    <div class="p-info">
-                        <span class="p-name" id="m-t">Offline</span>
-                        <span class="p-sub" id="m-a">No Music Loaded</span>
+                    <div class="player-top">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" width="25">
+                        <div class="p-info">
+                            <span class="p-name" id="m-t">Offline</span>
+                            <span class="p-sub" id="m-a">No Music Loaded</span>
+                        </div>
+                        <button class="play-btn" id="play-pause" onclick="togglePlay()">PLAY</button>
+                    </div>
+                    <div id="progress-bar" style="height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; display:none;">
+                        <div id="progress-fill" style="height: 100%; width: 0%; background: #1DB954; transition: 0.1s;"></div>
                     </div>
                 </div>
             </div>
@@ -138,6 +149,7 @@
                 <input type="file" id="f-ban" hidden onchange="prev(event, 'v-banner')">
 
                 <button class="nav-btn" style="background:#1DB954; color:#000;" onclick="linkS()">Link Spotify</button>
+                
                 <button class="nav-btn" onclick="document.getElementById('f-mus').click()">Load Local MP3</button>
                 <input type="file" id="f-mus" hidden accept="audio/*" onchange="setM(event)">
 
@@ -158,6 +170,7 @@
 
         firebase.initializeApp(config);
         const auth = firebase.auth();
+        const audio = document.getElementById('audio-player');
 
         function login() {
             auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(res => start(res.user));
@@ -172,6 +185,45 @@
             genFeed();
         }
 
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                document.getElementById('play-pause').innerText = 'PAUSE';
+            } else {
+                audio.pause();
+                document.getElementById('play-pause').innerText = 'PLAY';
+            }
+        }
+
+        audio.ontimeupdate = () => {
+            const pct = (audio.currentTime / audio.duration) * 100;
+            document.getElementById('progress-fill').style.width = pct + '%';
+        };
+
+        function setM(e) { 
+            const f = e.target.files[0]; 
+            if(f) { 
+                const url = URL.createObjectURL(f);
+                audio.src = url;
+                document.getElementById('m-t').innerText = f.name.replace('.mp3','').toUpperCase(); 
+                document.getElementById('m-a').innerText = "LOCAL STUDIO FILE";
+                document.getElementById('play-pause').style.display = 'flex';
+                document.getElementById('progress-bar').style.display = 'block';
+                toggleModal();
+            }
+        }
+
+        function linkS() { 
+            const l = prompt("Spotify URL:"); 
+            if(l) { 
+                document.getElementById('m-t').innerText = "SPOTIFY STREAMING"; 
+                document.getElementById('m-a').innerText = "ACTIVE LINK"; 
+                document.getElementById('play-pause').style.display = 'none';
+                document.getElementById('progress-bar').style.display = 'none';
+            }
+        }
+
+        /* --- LAS DEMAS FUNCIONES SE MANTIENEN IGUAL --- */
         function view(v) {
             document.getElementById('v-perfil').style.display = v === 'perfil' ? 'block' : 'none';
             document.getElementById('v-feed').style.display = v === 'feed' ? 'block' : 'none';
@@ -214,14 +266,6 @@
         }
 
         function setGif(u) { if(u) document.body.style.backgroundImage = `url('${u}')`; }
-        function setM(e) { 
-            const f = e.target.files[0]; 
-            if(f) { document.getElementById('m-t').innerText = f.name.replace('.mp3',''); document.getElementById('m-a').innerText = "LOCAL FILE"; }
-        }
-        function linkS() { 
-            const l = prompt("Spotify URL:"); 
-            if(l) { document.getElementById('m-t').innerText = "SPOTIFY ACTIVE"; document.getElementById('m-a').innerText = "STREAMING"; }
-        }
         function prev(e, id) {
             const url = URL.createObjectURL(e.target.files[0]);
             const t = document.getElementById(id);
@@ -243,6 +287,7 @@
     </script>
 </body>
 </html>
+
 
 
 
