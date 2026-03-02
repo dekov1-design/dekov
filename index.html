@@ -11,39 +11,191 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
-            --bg: #000; --text: #fff; --accent: #007aff;
-            --glass: rgba(255, 255, 255, 0.1); --border: rgba(255, 255, 255, 0.15);
-            --card-bg: rgba(28, 28, 30, 0.8);
+            --bg: #050505; --text: #fff; --accent: #007aff;
+            --glass: rgba(255, 255, 255, 0.1); --border: rgba(255, 255, 255, 0.1);
         }
         .tema-purpura { --bg: #0f051a; --accent: #af52de; }
         .tema-verde { --bg: #05140b; --accent: #34c759; }
-        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; transition: 0.5s; }
-
-        /* UI ELEMENTS */
-        #login-screen { position: fixed; inset: 0; background: #000; z-index: 50000; display: flex; align-items: center; justify-content: center; text-align: center; }
-        .google-btn { background: #fff; border: none; padding: 15px 30px; border-radius: 25px; font-weight: bold; cursor: pointer; }
         
-        #sidebar { position: fixed; top: 15px; left: -280px; width: 260px; height: calc(100% - 30px); background: var(--card-bg); backdrop-filter: blur(30px); border-radius: 30px; border: 1px solid var(--border); transition: 0.5s; z-index: 10000; padding: 40px 20px; display: flex; flex-direction: column; }
-        #sidebar.activo { left: 15px; }
-        .btn-menu { position: fixed; top: 25px; left: 25px; z-index: 10001; width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--border); background: var(--card-bg); color: #fff; cursor: pointer; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; min-height: 100vh; transition: 0.5s; }
 
-        .btn-nav { width: 100%; padding: 14px; margin-bottom: 8px; border: none; border-radius: 15px; background: var(--glass); color: #fff; font-weight: 600; cursor: pointer; text-align: left; }
-        
-        #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 20000; }
-        .modal-inner { background: var(--card-bg); padding: 25px; border-radius: 30px; width: 90%; max-width: 380px; border: 1px solid var(--border); }
+        /* Pantalla de Inicio (Login) */
+        #login-screen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .google-btn { background: #fff; color: #000; border: none; padding: 15px 35px; border-radius: 30px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 16px; }
 
-        #banner { height: 280px; background: #1a1a1a; overflow: hidden; }
+        /* Menu Lateral */
+        #sidebar { position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: rgba(20,20,20,0.95); backdrop-filter: blur(20px); border-right: 1px solid var(--border); transition: 0.4s; z-index: 1000; padding: 60px 20px; }
+        #sidebar.activo { left: 0; }
+        .btn-menu { position: fixed; top: 20px; left: 20px; z-index: 1100; width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--border); background: rgba(255,255,255,0.1); color: #fff; cursor: pointer; font-size: 20px; }
+
+        .btn-nav { width: 100%; padding: 15px; margin-bottom: 10px; border: none; border-radius: 12px; background: var(--glass); color: #fff; font-weight: 600; text-align: left; cursor: pointer; }
+
+        /* Perfil */
+        #banner { height: 250px; background: #111; overflow: hidden; border-bottom: 1px solid var(--border); }
         #banner img { width: 100%; height: 100%; object-fit: cover; }
-        .perfil-header { text-align: center; margin-top: -60px; padding-bottom: 20px; }
-        .avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--bg); overflow: hidden; display: inline-block; background: #222; }
+        .perfil-info { text-align: center; margin-top: -60px; padding: 0 20px; }
+        .avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--bg); display: inline-block; background: #222; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-        #spotify-widget { background: #121212; border-radius: 15px; padding: 10px 15px; width: 260px; margin: 15px auto; display: flex; align-items: center; gap: 12px; border: 1px solid #1DB954; }
+        /* Spotify Widget */
+        #spotify-widget { background: #121212; border-radius: 12px; padding: 12px; width: fit-content; min-width: 240px; margin: 20px auto; display: flex; align-items: center; gap: 12px; border: 1px solid #1DB954; }
 
-        .grid-muro { columns: 2 150px; column-gap: 10px; padding: 15px; }
-        .muro-item { break-inside: avoid; margin-bottom: 10px; border-radius: 12px; overflow: hidden; background: #111; }
-        .muro-item img { width: 100%; display: block; }
-        
-        input[type="text"] { width: 10
+        /* Grid */
+        .grid-container { columns: 2 160px; column-gap: 12px; padding: 20px; }
+        .item { break-inside: avoid; margin-bottom: 12px; border-radius: 15px; overflow: hidden; border: 1px solid var(--border); background: #111; }
+        .item img { width: 100%; display: block; }
+
+        /* Ajustes Modal */
+        #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-box { background: #1c1c1e; padding: 25px; border-radius: 25px; width: 90%; max-width: 350px; border: 1px solid var(--border); }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--border); background: #000; color: #fff; }
+    </style>
+</head>
+<body id="main">
+
+    <div id="login-screen">
+        <div>
+            <h1 style="font-size: 50px; letter-spacing: -3px; font-weight: 900;">DEKOV</h1>
+            <button class="google-btn" onclick="login()">Entrar con Google</button>
+        </div>
+    </div>
+
+    <div id="app" style="display:none;">
+        <button class="btn-menu" onclick="toggleSidebar()">☰</button>
+
+        <nav id="sidebar">
+            <h2 id="saludo" style="font-size: 12px; opacity: 0.5; margin-bottom: 20px;">HOLA</h2>
+            <button class="btn-nav" onclick="irFeed()">🔥 Explorar Feed</button>
+            <button class="btn-nav" onclick="irPerfil()">👤 Mi Perfil</button>
+            <button class="btn-nav" onclick="toggleModal()">⚙️ Ajustes</button>
+            <button class="btn-nav" style="background:var(--accent); margin-top:20px;" onclick="document.getElementById('up').click()">+ Subir Foto</button>
+            <input type="file" id="up" hidden onchange="subir(event)">
+            
+            <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
+                <div onclick="tema('')" style="width:25px; height:25px; border-radius:50%; background:#111; border:1px solid #333;"></div>
+                <div onclick="tema('purpura')" style="width:25px; height:25px; border-radius:50%; background:#af52de;"></div>
+                <div onclick="tema('verde')" style="width:25px; height:25px; border-radius:50%; background:#34c759;"></div>
+            </div>
+        </nav>
+
+        <div id="modal">
+            <div class="modal-box">
+                <h3 style="margin-bottom:15px">Ajustes</h3>
+                <input type="text" id="edit-name" placeholder="Nombre de usuario...">
+                <button class="btn-nav" onclick="document.getElementById('in-p').click()">Cambiar Avatar</button>
+                <input type="file" id="in-p" hidden onchange="preview(event, 'user-avatar')">
+                <button class="btn-nav" onclick="document.getElementById('in-m').click()">Cargar Música (.mp3)</button>
+                <input type="file" id="in-m" hidden onchange="cambiarMusica(event)">
+                <button class="btn-nav" style="background:var(--accent); margin-top:10px;" onclick="guardar()">Guardar</button>
+            </div>
+        </div>
+
+        <div id="banner"><img src="https://picsum.photos/seed/dekov/1200/500" id="img-b"></div>
+
+        <div class="perfil-info" id="perfil-header">
+            <div class="avatar" id="user-avatar"></div>
+            <h1 id="user-name" style="margin-top:15px; font-weight:800; letter-spacing:-1px;">...</h1>
+            
+            <div id="spotify-widget">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" width="22">
+                <div style="text-align: left;">
+                    <p id="s-track" style="color:#1DB954; font-size:13px; font-weight:bold;">Starboy</p>
+                    <p id="s-artist" style="font-size:11px; opacity:0.6;">The Weeknd</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-container" id="grid"></div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCxRzw9Br2t4TGDfKsdTzAuVPyoi2ey-0o",
+            authDomain: "dekov-c0c5b.firebaseapp.com",
+            projectId: "dekov-c0c5b",
+            storageBucket: "dekov-c0c5b.firebasestorage.app",
+            messagingSenderId: "654392697937",
+            appId: "1:654392697937:web:8b3b71eb94410709bc0470"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        function login() {
+            const p = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(p).then(res => show(res.user)).catch(e => alert("Error: " + e.message));
+        }
+
+        function show(user) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            document.getElementById('user-name').innerText = user.displayName.toUpperCase();
+            document.getElementById('saludo').innerText = "HOLA, " + user.displayName.split(' ')[0].toUpperCase();
+            document.getElementById('user-avatar').innerHTML = `<img src="${user.photoURL}">`;
+            irFeed(); // Muestra el feed por defecto
+        }
+
+        function irFeed() {
+            document.getElementById('perfil-header').style.display = 'none';
+            document.getElementById('banner').style.height = '80px';
+            let content = '';
+            for(let i=0; i<15; i++) {
+                content += `<div class="item"><img src="https://picsum.photos/seed/${i+20}/500/${400+Math.random()*300}"></div>`;
+            }
+            document.getElementById('grid').innerHTML = content;
+            if(document.getElementById('sidebar').classList.contains('activo')) toggleSidebar();
+        }
+
+        function irPerfil() {
+            document.getElementById('perfil-header').style.display = 'block';
+            document.getElementById('banner').style.height = '250px';
+            document.getElementById('grid').innerHTML = '<p style="text-align:center; width:100%; opacity:0.3; padding:40px;">Tu muro está vacío</p>';
+            if(document.getElementById('sidebar').classList.contains('activo')) toggleSidebar();
+        }
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('activo'); }
+        function toggleModal() { 
+            const m = document.getElementById('modal');
+            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function guardar() {
+            const n = document.getElementById('edit-name').value;
+            if(n) document.getElementById('user-name').innerText = n.toUpperCase();
+            toggleModal();
+        }
+
+        function preview(e, id) {
+            const url = URL.createObjectURL(e.target.files[0]);
+            document.getElementById(id).innerHTML = `<img src="${url}">`;
+        }
+
+        function subir(e) {
+            const url = URL.createObjectURL(e.target.files[0]);
+            const item = `<div class="item"><img src="${url}"></div>`;
+            const g = document.getElementById('grid');
+            if(g.innerHTML.includes('vacío')) g.innerHTML = '';
+            g.innerHTML = item + g.innerHTML;
+            toggleSidebar();
+        }
+
+        function cambiarMusica(e) {
+            const f = e.target.files[0];
+            if(f) {
+                document.getElementById('s-track').innerText = f.name.replace('.mp3', '');
+                document.getElementById('s-artist').innerText = "Archivo Local";
+            }
+        }
+
+        function tema(t) {
+            document.getElementById('main').className = t ? 'tema-'+t : '';
+        }
+
+        auth.onAuthStateChanged(u => { if(u) show(u); });
+    </script>
+</body>
+</html>
+
 
 
