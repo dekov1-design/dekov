@@ -10,49 +10,105 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
-        :root { --bg: #000; --text: #fff; --accent: #007aff; --border: rgba(255, 255, 255, 0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root {
+            --bg: #000; --text: #fff; --accent: #007aff;
+            --glass: rgba(255, 255, 255, 0.1); --border: rgba(255, 255, 255, 0.15);
+            --card-bg: rgba(28, 28, 30, 0.8);
+        }
         .tema-purpura { --bg: #0f051a; --accent: #af52de; }
         .tema-verde { --bg: #05140b; --accent: #34c759; }
-        body { background: var(--bg); color: var(--text); transition: 0.5s; overflow-x: hidden; }
-        
-        /* Login Layer */
-        #login-screen { position: fixed; inset: 0; background: #000; z-index: 999; display: flex; align-items: center; justify-content: center; text-align: center; }
-        .google-btn { background: #fff; color: #000; border: none; padding: 15px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; margin-top: 20px; }
-        
-        /* UI */
-        #menu-btn { position: fixed; top: 20px; left: 20px; z-index: 100; background: rgba(255,255,255,0.1); color: #fff; border: none; padding: 10px; border-radius: 10px; display: none; }
-        #banner { height: 250px; background: #1a1a1a; overflow: hidden; }
+        .tema-rojo { --bg: #1a0505; --accent: #ff3b30; }
+
+        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, sans-serif; transition: 0.5s; overflow-x: hidden; }
+
+        /* PANTALLA DE LOGIN */
+        #login-screen { position: fixed; inset: 0; background: #000; z-index: 50000; display: flex; align-items: center; justify-content: center; text-align: center; transition: 0.8s; }
+        .login-card { background: var(--card-bg); padding: 50px 30px; border-radius: 40px; border: 1px solid var(--border); backdrop-filter: blur(20px); width: 90%; max-width: 360px; }
+        .google-btn { width: 100%; height: 50px; background: #fff; border: none; border-radius: 25px; display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; margin-top: 25px; font-weight: 600; color: #1f1f1f; font-size: 16px; }
+
+        /* UI PRINCIPAL (OCULTA HASTA LOGIN) */
+        #app-content { display: none; opacity: 0; transition: 1s; }
+
+        /* SIDEBAR / MENÚ */
+        #sidebar { position: fixed; top: 15px; left: -280px; width: 260px; height: calc(100% - 30px); background: var(--card-bg); backdrop-filter: blur(30px); border-radius: 30px; border: 1px solid var(--border); transition: 0.5s; z-index: 10000; padding: 40px 20px; display: flex; flex-direction: column; }
+        #sidebar.activo { left: 15px; }
+        .btn-menu { position: fixed; top: 25px; left: 25px; z-index: 10001; width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--border); background: var(--card-bg); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        /* BOTONES NAVEGACIÓN */
+        .btn-nav { width: 100%; padding: 14px; margin-bottom: 8px; border: none; border-radius: 15px; background: var(--glass); color: #fff; font-weight: 600; cursor: pointer; text-align: left; }
+        .color-palette { display: flex; gap: 10px; margin-top: 20px; padding: 10px; justify-content: center; background: rgba(0,0,0,0.2); border-radius: 20px; }
+        .dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.1); }
+
+        /* PERFIL Y BANNER */
+        #banner { height: 320px; background: #1a1a1a; overflow: hidden; position: relative; }
         #banner img { width: 100%; height: 100%; object-fit: cover; }
-        .profile { text-align: center; margin-top: -60px; }
-        .avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--bg); display: inline-block; background: #222; overflow: hidden; }
+        .perfil-header { text-align: center; margin-top: -75px; position: relative; z-index: 10; }
+        .avatar { width: 150px; height: 150px; border-radius: 50%; border: 5px solid var(--bg); overflow: hidden; display: inline-block; background: #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; }
-        .grid-item { background: #111; aspect-ratio: 1; border-radius: 10px; overflow: hidden; }
-        .grid-item img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* SPOTIFY WIDGET */
+        #spotify-widget { background: #121212; border-radius: 15px; padding: 10px 15px; width: 280px; margin: 15px auto; display: flex; align-items: center; gap: 12px; border: 1px solid #1DB954; }
+        .spoty-track { font-size: 13px; font-weight: bold; color: #1DB954; }
+        .spoty-artist { font-size: 11px; opacity: 0.6; }
+
+        /* MURO GRID */
+        .grid-muro { columns: 3 300px; column-gap: 20px; padding: 20px; max-width: 1400px; margin: 0 auto; }
+        .muro-item { break-inside: avoid; margin-bottom: 20px; border-radius: 20px; overflow: hidden; border: 1px solid var(--border); cursor: zoom-in; transition: 0.3s; }
+        .muro-item img { width: 100%; display: block; }
     </style>
 </head>
 <body id="main">
 
     <div id="login-screen">
-        <div>
-            <h1 style="font-size: 50px; letter-spacing: -2px;">DEKOV</h1>
-            <button class="google-btn" onclick="loginReal()">Entrar con Google</button>
+        <div class="login-card">
+            <h1 style="font-size: 45px; font-weight: 900; letter-spacing: -3px; margin-bottom: 10px;">DEKOV</h1>
+            <p style="opacity: 0.6;">Bienvenido al Studio</p>
+            <button class="google-btn" onclick="loginReal()">
+                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" width="20">
+                Entrar con Google
+            </button>
         </div>
     </div>
 
-    <button id="menu-btn" onclick="document.body.classList.toggle('tema-purpura')">Cambiar Color</button>
+    <div id="app-content">
+        <button class="btn-menu" onclick="toggleSidebar()">☰</button>
 
-    <div id="app-content" style="display:none;">
-        <div id="banner"><img src="https://picsum.photos/1200/400" id="b-img"></div>
-        <div class="profile">
-            <div class="avatar" id="av-box"></div>
-            <h2 id="u-name" style="margin-top:10px;">Cargando...</h2>
+        <div id="sidebar">
+            <h2 id="saludo" style="font-size: 14px; margin-bottom: 20px; opacity: 0.5;">HOLA</h2>
+            <button class="btn-nav" onclick="irInicio()">Explorar</button>
+            <button class="btn-nav" onclick="irPerfil()">Mi Muro</button>
+            <button class="btn-nav" style="background:var(--accent);" onclick="document.getElementById('up').click()">+ Subir Foto</button>
+            <input type="file" id="up" hidden onchange="subirFoto(event)">
+            
+            <div class="color-palette">
+                <div class="dot" style="background:#111" onclick="cambiarTema('')"></div>
+                <div class="dot" style="background:#af52de" onclick="cambiarTema('purpura')"></div>
+                <div class="dot" style="background:#34c759" onclick="cambiarTema('verde')"></div>
+                <div class="dot" style="background:#ff3b30" onclick="cambiarTema('rojo')"></div>
+            </div>
+            <button class="btn-nav" style="margin-top:auto; opacity:0.3;" onclick="location.reload()">Cerrar Sesión</button>
         </div>
-        <div class="grid" id="grid">
-            <div class="grid-item"><img src="https://picsum.photos/seed/1/400"></div>
-            <div class="grid-item"><img src="https://picsum.photos/seed/2/400"></div>
-            <div class="grid-item"><img src="https://picsum.photos/seed/3/400"></div>
+
+        <div id="banner"><img src="https://picsum.photos/1200/500" id="user-banner"></div>
+
+        <div class="perfil-header">
+            <div class="avatar" id="user-avatar"></div>
+            <h1 id="user-name" style="margin-top:15px; font-weight:900; letter-spacing: -1px;">...</h1>
+            
+            <div id="spotify-widget">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" width="20">
+                <div style="text-align: left;">
+                    <p class="spoty-track">Starboy</p>
+                    <p class="spoty-artist">The Weeknd • Spotify</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-muro" id="grid">
+            <div class="muro-item"><img src="https://picsum.photos/seed/a1/600/800"></div>
+            <div class="muro-item"><img src="https://picsum.photos/seed/a2/600/700"></div>
+            <div class="muro-item"><img src="https://picsum.photos/seed/a3/600/900"></div>
         </div>
     </div>
 
@@ -68,25 +124,63 @@
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
+        const db = firebase.firestore();
 
         function loginReal() {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider).then((result) => {
-                showApp(result.user);
-            }).catch(e => alert("Error en Firebase: " + e.message));
+                entrarApp(result.user);
+            }).catch(e => alert("Error: " + e.message));
         }
 
-        function showApp(user) {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app-content').style.display = 'block';
-            document.getElementById('menu-btn').style.display = 'block';
-            document.getElementById('u-name').innerText = user.displayName;
-            document.getElementById('av-box').innerHTML = `<img src="${user.photoURL}">`;
+        function entrarApp(user) {
+            document.getElementById('login-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+                setTimeout(() => document.getElementById('app-content').style.opacity = '1', 50);
+            }, 800);
+
+            document.getElementById('user-name').innerText = user.displayName.toUpperCase();
+            document.getElementById('saludo').innerText = "HOLA, " + user.displayName.split(' ')[0].toUpperCase();
+            document.getElementById('user-avatar').innerHTML = `<img src="${user.photoURL}">`;
+            
+            // Cargar tema guardado
+            db.collection("usuarios").doc(user.uid).get().then(doc => {
+                if(doc.exists && doc.data().tema) cambiarTema(doc.data().tema);
+            });
         }
 
-        // Mantener sesión si ya se logueó
-        auth.onAuthStateChanged(user => { if(user) showApp(user); });
+        function cambiarTema(t) {
+            document.getElementById('main').className = t ? 'tema-'+t : '';
+            const user = auth.currentUser;
+            if(user) db.collection("usuarios").doc(user.uid).set({ tema: t }, { merge: true });
+        }
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('activo'); }
+
+        function subirFoto(e) {
+            const url = URL.createObjectURL(e.target.files[0]);
+            const item = `<div class="muro-item"><img src="${url}"></div>`;
+            document.getElementById('grid').innerHTML = item + document.getElementById('grid').innerHTML;
+            toggleSidebar();
+        }
+
+        function irInicio() {
+            document.querySelector('.perfil-header').style.display = 'none';
+            document.getElementById('banner').style.height = '100px';
+            toggleSidebar();
+        }
+
+        function irPerfil() {
+            document.querySelector('.perfil-header').style.display = 'block';
+            document.getElementById('banner').style.height = '320px';
+            toggleSidebar();
+        }
+
+        // Auto-login si ya entró antes
+        auth.onAuthStateChanged(user => { if(user) entrarApp(user); });
     </script>
 </body>
-</html> 
+</html>
 
