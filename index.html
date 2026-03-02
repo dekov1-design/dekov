@@ -1,1 +1,92 @@
- 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEKOV | STUDIO PRO</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        :root { --bg: #000; --text: #fff; --accent: #007aff; --border: rgba(255, 255, 255, 0.1); }
+        .tema-purpura { --bg: #0f051a; --accent: #af52de; }
+        .tema-verde { --bg: #05140b; --accent: #34c759; }
+        body { background: var(--bg); color: var(--text); transition: 0.5s; overflow-x: hidden; }
+        
+        /* Login Layer */
+        #login-screen { position: fixed; inset: 0; background: #000; z-index: 999; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .google-btn { background: #fff; color: #000; border: none; padding: 15px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        
+        /* UI */
+        #menu-btn { position: fixed; top: 20px; left: 20px; z-index: 100; background: rgba(255,255,255,0.1); color: #fff; border: none; padding: 10px; border-radius: 10px; display: none; }
+        #banner { height: 250px; background: #1a1a1a; overflow: hidden; }
+        #banner img { width: 100%; height: 100%; object-fit: cover; }
+        .profile { text-align: center; margin-top: -60px; }
+        .avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--bg); display: inline-block; background: #222; overflow: hidden; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; }
+        .grid-item { background: #111; aspect-ratio: 1; border-radius: 10px; overflow: hidden; }
+        .grid-item img { width: 100%; height: 100%; object-fit: cover; }
+    </style>
+</head>
+<body id="main">
+
+    <div id="login-screen">
+        <div>
+            <h1 style="font-size: 50px; letter-spacing: -2px;">DEKOV</h1>
+            <button class="google-btn" onclick="loginReal()">Entrar con Google</button>
+        </div>
+    </div>
+
+    <button id="menu-btn" onclick="document.body.classList.toggle('tema-purpura')">Cambiar Color</button>
+
+    <div id="app-content" style="display:none;">
+        <div id="banner"><img src="https://picsum.photos/1200/400" id="b-img"></div>
+        <div class="profile">
+            <div class="avatar" id="av-box"></div>
+            <h2 id="u-name" style="margin-top:10px;">Cargando...</h2>
+        </div>
+        <div class="grid" id="grid">
+            <div class="grid-item"><img src="https://picsum.photos/seed/1/400"></div>
+            <div class="grid-item"><img src="https://picsum.photos/seed/2/400"></div>
+            <div class="grid-item"><img src="https://picsum.photos/seed/3/400"></div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCxRzw9Br2t4TGDfKsdTzAuVPyoi2ey-0o",
+            authDomain: "dekov-c0c5b.firebaseapp.com",
+            projectId: "dekov-c0c5b",
+            storageBucket: "dekov-c0c5b.firebasestorage.app",
+            messagingSenderId: "654392697937",
+            appId: "1:654392697937:web:8b3b71eb94410709bc0470"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        function loginReal() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).then((result) => {
+                showApp(result.user);
+            }).catch(e => alert("Error en Firebase: " + e.message));
+        }
+
+        function showApp(user) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+            document.getElementById('menu-btn').style.display = 'block';
+            document.getElementById('u-name').innerText = user.displayName;
+            document.getElementById('av-box').innerHTML = `<img src="${user.photoURL}">`;
+        }
+
+        // Mantener sesión si ya se logueó
+        auth.onAuthStateChanged(user => { if(user) showApp(user); });
+    </script>
+</body>
+</html> 
+
