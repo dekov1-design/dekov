@@ -4,194 +4,150 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DEKOV | STUDIO PRO</title>
-    
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
             --bg: #000; --text: #fff; --accent: #007aff;
-            --glass: rgba(255, 255, 255, 0.08); --border: rgba(255, 255, 255, 0.12);
-            --card: rgba(20, 20, 22, 0.85);
+            --glass: rgba(255, 255, 255, 0.05); --border: rgba(255, 255, 255, 0.1);
+            --card: rgba(15, 15, 15, 0.9);
         }
         
         body { 
             background: var(--bg); 
-            background-size: cover; 
-            background-position: center; 
-            background-attachment: fixed;
-            color: var(--text); 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            transition: background 0.5s ease;
-            overflow-x: hidden;
-            min-height: 100vh;
+            background-size: cover; background-position: center; background-attachment: fixed;
+            color: var(--text); font-family: -apple-system, sans-serif; transition: 0.5s; overflow-x: hidden;
         }
 
-        /* LOGIN OVERLAY */
-        #login-screen { 
-            position: fixed; inset: 0; background: #000; z-index: 10000; 
-            display: flex; align-items: center; justify-content: center; flex-direction: column;
-        }
-        .logo-anim { font-size: 70px; font-weight: 900; letter-spacing: -5px; margin-bottom: 20px; animation: glow 2s infinite alternate; }
-        @keyframes glow { from { text-shadow: 0 0 10px #fff; } to { text-shadow: 0 0 30px var(--accent); } }
-        .google-btn { 
-            background: #fff; color: #000; border: none; padding: 18px 45px; 
-            border-radius: 40px; font-weight: bold; cursor: pointer; font-size: 16px; 
-            box-shadow: 0 10px 30px rgba(255,255,255,0.2);
-        }
+        /* LOGIN */
+        #login-screen { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .logo-title { font-size: 80px; font-weight: 900; letter-spacing: -6px; margin-bottom: 30px; }
+        .google-btn { background: #fff; color: #000; border: none; padding: 18px 50px; border-radius: 40px; font-weight: 900; cursor: pointer; font-size: 14px; text-transform: uppercase; }
 
-        /* NAVIGATION */
-        .top-bar { position: fixed; top: 0; width: 100%; height: 70px; z-index: 5000; display: flex; align-items: center; justify-content: space-between; padding: 0 25px; backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
-        .btn-ui { width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--border); background: var(--glass); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        /* HEADER */
+        .header { position: fixed; top: 0; width: 100%; height: 60px; z-index: 5000; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); }
+        .btn-icon { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--glass); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; }
 
         /* SIDEBAR */
         #sidebar { 
-            position: fixed; top: 0; left: -300px; width: 300px; height: 100%; 
-            background: var(--card); backdrop-filter: blur(30px); z-index: 6000; 
-            transition: 0.5s cubic-bezier(0.1, 0.7, 1.0, 0.1); padding: 90px 25px; 
-            border-right: 1px solid var(--border); display: flex; flex-direction: column;
+            position: fixed; top: 0; left: -300px; width: 280px; height: 100%; 
+            background: var(--card); backdrop-filter: blur(40px); z-index: 6000; 
+            transition: 0.4s; padding: 80px 20px; border-right: 1px solid var(--border);
         }
         #sidebar.active { left: 0; }
-        .nav-link { width: 100%; padding: 16px; margin-bottom: 12px; border: none; border-radius: 15px; background: var(--glass); color: #fff; font-weight: 600; text-align: left; cursor: pointer; transition: 0.2s; }
-        .nav-link:active { transform: scale(0.98); background: var(--accent); }
+        .nav-btn { width: 100%; padding: 15px; margin-bottom: 10px; border: none; border-radius: 12px; background: var(--glass); color: #fff; font-weight: 700; text-align: left; cursor: pointer; font-size: 13px; text-transform: uppercase; }
 
-        /* PERFIL SECTION */
-        #main-content { display: none; padding-top: 70px; opacity: 0; transition: 1s; }
-        .hero { height: 320px; background: #111; position: relative; overflow: hidden; }
+        /* CONTENT */
+        #app-content { display: none; padding-top: 60px; opacity: 0; transition: 0.8s; }
+        .hero { height: 350px; background: #111; overflow: hidden; position: relative; border-bottom: 1px solid var(--border); }
         .hero img { width: 100%; height: 100%; object-fit: cover; }
-        .profile-card { text-align: center; margin-top: -80px; position: relative; z-index: 10; padding: 0 20px; }
-        .avatar-box { width: 160px; height: 160px; border-radius: 50%; border: 6px solid var(--bg); display: inline-block; background: #222; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
         
-        .user-meta h1 { font-size: 32px; font-weight: 900; letter-spacing: -1.5px; margin-top: 15px; text-transform: uppercase; }
+        .profile-wrap { text-align: center; margin-top: -85px; position: relative; z-index: 10; padding: 0 20px; }
+        .avatar { width: 150px; height: 150px; border-radius: 50%; border: 5px solid var(--bg); display: inline-block; background: #222; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .user-name-main { font-size: 38px; font-weight: 900; letter-spacing: -2px; margin-top: 15px; text-transform: uppercase; }
 
         /* MUSIC WIDGET */
-        .music-player { 
-            background: rgba(18, 18, 18, 0.9); border-radius: 20px; padding: 15px 25px; 
-            width: 100%; max-width: 340px; margin: 30px auto; display: flex; align-items: center; 
-            gap: 20px; border: 1px solid #1DB954; box-shadow: 0 10px 30px rgba(29, 185, 84, 0.2);
-        }
-        .music-info { text-align: left; overflow: hidden; }
-        .music-title { color: #1DB954; font-size: 15px; font-weight: 700; display: block; white-space: nowrap; text-overflow: ellipsis; }
-        .music-artist { font-size: 12px; opacity: 0.6; }
+        .player { background: #121212; border-radius: 15px; padding: 12px 20px; width: 100%; max-width: 320px; margin: 25px auto; display: flex; align-items: center; gap: 15px; border: 1px solid #1DB954; }
+        .p-info { text-align: left; }
+        .p-name { color: #1DB954; font-size: 14px; font-weight: 800; display: block; }
+        .p-sub { font-size: 11px; opacity: 0.4; text-transform: uppercase; }
 
-        /* MURO & FEED */
-        .section-title { padding: 30px 25px 10px; font-size: 14px; letter-spacing: 2px; opacity: 0.5; font-weight: 800; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; }
-        .post { background: var(--card); border-radius: 20px; overflow: hidden; border: 1px solid var(--border); position: relative; }
-        .post img { width: 100%; display: block; transition: 0.3s; }
-        .post-actions { position: absolute; bottom: 0; width: 100%; padding: 10px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); display: flex; justify-content: space-around; opacity: 0; transition: 0.3s; }
-        .post:hover .post-actions { opacity: 1; }
-        .action-btn { background: none; border: none; color: #fff; font-size: 18px; cursor: pointer; padding: 5px; }
+        /* GRID / FEED */
+        .section-label { padding: 40px 20px 10px; font-size: 11px; letter-spacing: 3px; opacity: 0.4; font-weight: 900; text-transform: uppercase; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px; }
+        .card { background: #111; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid var(--border); }
+        .card img { width: 100%; display: block; }
+        .card-overlay { position: absolute; inset: 0; background: linear-gradient(transparent, rgba(0,0,0,0.9)); display: flex; align-items: flex-end; justify-content: space-around; padding: 15px; opacity: 0; transition: 0.3s; }
+        .card:hover .card-overlay { opacity: 1; }
+        .btn-action { background: var(--glass); border: 1px solid var(--border); color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
 
-        /* MODAL CONFIG */
-        #settings-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(25px); z-index: 7000; display: none; align-items: center; justify-content: center; overflow-y: auto; }
-        .modal-body { background: var(--card); width: 90%; max-width: 450px; border-radius: 35px; padding: 35px; border: 1px solid var(--border); margin: 20px 0; }
-        .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; font-size: 11px; opacity: 0.5; margin-bottom: 8px; font-weight: bold; }
-        .input-group input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: rgba(0,0,0,0.4); color: #fff; font-size: 14px; }
+        /* MODAL */
+        #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(30px); z-index: 7000; display: none; align-items: center; justify-content: center; }
+        .modal-inner { background: #111; width: 90%; max-width: 400px; border-radius: 30px; padding: 30px; border: 1px solid var(--border); }
+        .input-item { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: #000; color: #fff; margin-bottom: 15px; font-size: 13px; font-weight: 600; }
         
-        /* THEMES */
-        .theme-dots { display: flex; gap: 15px; justify-content: center; margin: 20px 0; }
-        .dot { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.3s; }
-        .dot.active { border-color: #fff; transform: scale(1.1); }
+        .dots { display: flex; gap: 15px; justify-content: center; margin-bottom: 25px; }
+        .dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
     </style>
 </head>
-<body id="master-body">
+<body id="main">
 
     <div id="login-screen">
-        <h1 class="logo-anim">DEKOV</h1>
-        <button class="google-btn" onclick="signIn()">Sign in with Google</button>
+        <h1 class="logo-title">DEKOV</h1>
+        <button class="google-btn" onclick="login()">Sign In with Google</button>
     </div>
 
-    <div id="main-content">
-        <header class="top-bar">
-            <button class="btn-ui" onclick="toggleSidebar()">☰</button>
-            <h2 style="font-size: 18px; font-weight: 900; letter-spacing: -1px;">STUDIO</h2>
-            <button class="btn-ui" onclick="shareApp()">🔗</button>
-        </header>
+    <div id="app-content">
+        <div class="header">
+            <button class="btn-icon" onclick="toggleSidebar()">☰</button>
+            <div style="font-weight: 900; letter-spacing: -1px; font-size: 20px;">DEKOV</div>
+            <button class="btn-icon" onclick="copyApp()">🔗</button>
+        </div>
 
         <nav id="sidebar">
-            <p style="font-size: 10px; opacity: 0.4; letter-spacing: 2px; margin-bottom: 30px;">MENU PRINCIPAL</p>
-            <button class="nav-link" onclick="switchView('perfil')">👤 Mi Perfil</button>
-            <button class="nav-link" onclick="switchView('feed')">🔥 Explorar Feed</button>
-            <button class="nav-link" onclick="toggleModal()">⚙️ Configuración</button>
-            <button class="nav-link" style="background: var(--accent);" onclick="document.getElementById('file-upload').click()">+ Subir al Muro</button>
-            <input type="file" id="file-upload" hidden onchange="uploadToMuro(event)">
-            
-            <button class="nav-link" style="margin-top: auto; color: #ff3b30;" onclick="location.reload()">Cerrar Sesión</button>
+            <button class="nav-btn" onclick="view('perfil')">Profile</button>
+            <button class="nav-btn" onclick="view('feed')">Explore Feed</button>
+            <button class="nav-btn" onclick="toggleModal()">Settings</button>
+            <button class="nav-btn" style="background:var(--accent);" onclick="document.getElementById('up-img').click()">Upload Post</button>
+            <input type="file" id="up-img" hidden onchange="upload(event)">
+            <button class="nav-btn" style="margin-top:auto; opacity:0.3;" onclick="location.reload()">Sign Out</button>
         </nav>
 
-        <div id="perfil-view">
-            <div class="hero" id="user-banner-container">
-                <img src="https://picsum.photos/seed/dkv/1200/600" id="user-banner">
-            </div>
-            
-            <div class="profile-card">
-                <div class="avatar-box" id="user-avatar-container"></div>
-                <div class="user-meta">
-                    <h1 id="display-name">USUARIO</h1>
-                    <div class="music-player">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" width="28">
-                        <div class="music-info">
-                            <span class="music-title" id="m-title">No hay música</span>
-                            <span class="music-artist" id="m-artist">Biblioteca Dekov</span>
-                        </div>
+        <div id="v-perfil">
+            <div class="hero"><img src="https://picsum.photos/seed/dkv1/1200/600" id="v-banner"></div>
+            <div class="profile-wrap">
+                <div class="avatar" id="v-avatar-box"></div>
+                <h1 id="v-name" class="user-name-main">...</h1>
+                
+                <div class="player">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" width="25">
+                    <div class="p-info">
+                        <span class="p-name" id="m-t">Offline</span>
+                        <span class="p-sub" id="m-a">No Music Loaded</span>
                     </div>
                 </div>
             </div>
-
-            <p class="section-title">MI MURO</p>
-            <div class="grid" id="muro-grid">
-                <div class="post"><img src="https://picsum.photos/seed/1/600/600"></div>
-                <div class="post"><img src="https://picsum.photos/seed/2/600/600"></div>
-            </div>
+            <p class="section-label">My Gallery</p>
+            <div class="grid" id="my-grid"></div>
         </div>
 
-        <div id="feed-view" style="display: none;">
-            <p class="section-title">EXPLORAR FEED</p>
-            <div class="grid" id="feed-grid"></div>
+        <div id="v-feed" style="display:none;">
+            <p class="section-label">Global Feed</p>
+            <div class="grid" id="global-grid"></div>
         </div>
 
-        <div id="settings-modal">
-            <div class="modal-body">
-                <h2>Personalizar Studio</h2>
+        <div id="modal">
+            <div class="modal-inner">
+                <h2 style="margin-bottom:20px; text-transform: uppercase; font-size: 16px;">Studio Settings</h2>
+                <input type="text" id="in-name" class="input-item" placeholder="User Name">
+                <input type="text" id="in-gif" class="input-item" placeholder="GIF Wallpaper URL" onchange="setGif(this.value)">
                 
-                <div class="input-group">
-                    <label>NOMBRE DE USUARIO</label>
-                    <input type="text" id="input-name" placeholder="Escribe tu nombre...">
+                <div class="dots">
+                    <div class="dot" style="background:#111" onclick="setT('')"></div>
+                    <div class="dot" style="background:#af52de" onclick="setT('purpura')"></div>
+                    <div class="dot" style="background:#34c759" onclick="setT('verde')"></div>
                 </div>
 
-                <div class="input-group">
-                    <label>FONDOS (GIF URL O COLOR)</label>
-                    <input type="text" id="input-gif" placeholder="Pega link de tu GIF favorito..." onchange="setGifBackground(this.value)">
-                </div>
+                <button class="nav-btn" onclick="document.getElementById('f-av').click()">Change Avatar</button>
+                <input type="file" id="f-av" hidden onchange="prev(event, 'v-avatar-box')">
 
-                <div class="theme-dots">
-                    <div class="dot" style="background: #000;" onclick="setTheme('')"></div>
-                    <div class="dot" style="background: #af52de;" onclick="setTheme('purpura')"></div>
-                    <div class="dot" style="background: #34c759;" onclick="setTheme('verde')"></div>
-                </div>
+                <button class="nav-btn" onclick="document.getElementById('f-ban').click()">Change Banner</button>
+                <input type="file" id="f-ban" hidden onchange="prev(event, 'v-banner')">
 
-                <button class="nav-link" onclick="document.getElementById('file-avatar').click()">🖼️ Cambiar Avatar</button>
-                <input type="file" id="file-avatar" hidden onchange="previewImg(event, 'user-avatar-container')">
+                <button class="nav-btn" style="background:#1DB954; color:#000;" onclick="linkS()">Link Spotify</button>
+                <button class="nav-btn" onclick="document.getElementById('f-mus').click()">Load Local MP3</button>
+                <input type="file" id="f-mus" hidden accept="audio/*" onchange="setM(event)">
 
-                <button class="nav-link" onclick="document.getElementById('file-banner').click()">🌄 Cambiar Portada</button>
-                <input type="file" id="file-banner" hidden onchange="previewImg(event, 'user-banner')">
-
-                <button class="nav-link" style="background: #1DB954; color: #000;" onclick="promptSpotify()">🔗 Vincular Spotify</button>
-                
-                <button class="nav-link" onclick="document.getElementById('file-music').click()">🎵 Cargar Música Local</button>
-                <input type="file" id="file-music" hidden accept="audio/*" onchange="loadLocalMusic(event)">
-
-                <button class="nav-link" style="background: var(--accent); text-align: center; margin-top: 20px;" onclick="saveChanges()">GUARDAR TODO</button>
+                <button class="nav-btn" style="background:var(--accent); text-align:center; margin-top:15px;" onclick="save()">Save Changes</button>
             </div>
         </div>
     </div>
 
     <script>
-        const firebaseConfig = {
+        const config = {
             apiKey: "AIzaSyCxRzw9Br2t4TGDfKsdTzAuVPyoi2ey-0o",
             authDomain: "dekov-c0c5b.firebaseapp.com",
             projectId: "dekov-c0c5b",
@@ -200,126 +156,93 @@
             appId: "1:654392697937:web:8b3b71eb94410709bc0470"
         };
 
-        firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(config);
         const auth = firebase.auth();
 
-        function signIn() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).then(res => initApp(res.user));
+        function login() {
+            auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).then(res => start(res.user));
         }
 
-        function initApp(user) {
+        function start(user) {
             document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-            setTimeout(() => document.getElementById('main-content').style.opacity = '1', 100);
-            
-            document.getElementById('display-name').innerText = user.displayName;
-            document.getElementById('user-avatar-container').innerHTML = `<img src="${user.photoURL}" id="av-img">`;
-            generateFeed();
+            document.getElementById('app-content').style.display = 'block';
+            setTimeout(() => document.getElementById('app-content').style.opacity = '1', 50);
+            document.getElementById('v-name').innerText = user.displayName.toUpperCase();
+            document.getElementById('v-avatar-box').innerHTML = `<img src="${user.photoURL}">`;
+            genFeed();
         }
 
-        function switchView(view) {
-            document.getElementById('perfil-view').style.display = view === 'perfil' ? 'block' : 'none';
-            document.getElementById('feed-view').style.display = view === 'feed' ? 'block' : 'none';
-            if(view === 'feed') generateFeed();
+        function view(v) {
+            document.getElementById('v-perfil').style.display = v === 'perfil' ? 'block' : 'none';
+            document.getElementById('v-feed').style.display = v === 'feed' ? 'block' : 'none';
             toggleSidebar();
         }
 
-        function generateFeed() {
-            const grid = document.getElementById('feed-grid');
-            grid.innerHTML = '';
-            for(let i=0; i<20; i++) {
-                const id = Math.floor(Math.random() * 1000);
-                const url = `https://picsum.photos/id/${id}/600/800`;
-                grid.innerHTML += `
-                    <div class="post" id="post-${id}">
+        function genFeed() {
+            const g = document.getElementById('global-grid');
+            g.innerHTML = '';
+            for(let i=0; i<16; i++) {
+                const id = Math.floor(Math.random()*1000);
+                const url = `https://picsum.photos/id/${id}/800/1000`;
+                g.innerHTML += `
+                    <div class="card">
                         <img src="${url}">
-                        <div class="post-actions">
-                            <button class="action-btn" onclick="likePost(${id})">❤️</button>
-                            <button class="action-btn" onclick="downloadImg('${url}')">💾</button>
+                        <div class="card-overlay">
+                            <button class="btn-action" onclick="this.innerText='LIKED'">LIKE</button>
+                            <button class="btn-action" onclick="down('${url}')">HD SAVE</button>
                         </div>
                     </div>
                 `;
             }
         }
 
-        function setGifBackground(url) {
-            if(url) document.body.style.backgroundImage = `url('${url}')`;
-        }
-
-        function likePost(id) {
-            const btn = document.querySelector(`#post-${id} .action-btn`);
-            btn.innerHTML = btn.innerHTML === '❤️' ? '💖' : '❤️';
-            btn.style.transform = 'scale(1.3)';
-            setTimeout(() => btn.style.transform = 'scale(1)', 200);
-        }
-
-        function downloadImg(url) {
+        function down(url) {
             const a = document.createElement('a');
-            a.href = url;
-            a.download = 'dekov-image.jpg';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            alert("Descargando imagen...");
+            a.href = url; a.download = 'dekov_hd.jpg';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
 
-        function shareApp() {
-            const url = window.location.href;
-            navigator.clipboard.writeText(url);
-            alert("¡Link de la App copiado! Pégalo en TikTok o Instagram.");
+        function copyApp() {
+            navigator.clipboard.writeText(window.location.href);
+            alert("LINK COPIED");
         }
 
-        function loadLocalMusic(e) {
-            const file = e.target.files[0];
-            if(file) {
-                document.getElementById('m-title').innerText = file.name.replace('.mp3', '');
-                document.getElementById('m-artist').innerText = "Archivo Local";
-            }
-        }
-
-        function promptSpotify() {
-            const link = prompt("Copia y pega el link de tu canción en Spotify:");
-            if(link) {
-                document.getElementById('m-title').innerText = "Spotify Track Vinculado";
-                document.getElementById('m-artist').innerText = "Streaming Online";
-            }
-        }
-
-        function uploadToMuro(e) {
+        function upload(e) {
             const url = URL.createObjectURL(e.target.files[0]);
-            const html = `<div class="post"><img src="${url}"></div>`;
-            document.getElementById('muro-grid').innerHTML = html + document.getElementById('muro-grid').innerHTML;
+            document.getElementById('my-grid').innerHTML = `<div class="card"><img src="${url}"></div>` + document.getElementById('my-grid').innerHTML;
             toggleSidebar();
         }
 
-        function previewImg(e, id) {
-            const url = URL.createObjectURL(e.target.files[0]);
-            const target = document.getElementById(id);
-            if(target.tagName === 'IMG') target.src = url;
-            else target.innerHTML = `<img src="${url}">`;
+        function setGif(u) { if(u) document.body.style.backgroundImage = `url('${u}')`; }
+        function setM(e) { 
+            const f = e.target.files[0]; 
+            if(f) { document.getElementById('m-t').innerText = f.name.replace('.mp3',''); document.getElementById('m-a').innerText = "LOCAL FILE"; }
         }
-
-        function saveChanges() {
-            const newName = document.getElementById('input-name').value;
-            if(newName) document.getElementById('display-name').innerText = newName;
+        function linkS() { 
+            const l = prompt("Spotify URL:"); 
+            if(l) { document.getElementById('m-t').innerText = "SPOTIFY ACTIVE"; document.getElementById('m-a').innerText = "STREAMING"; }
+        }
+        function prev(e, id) {
+            const url = URL.createObjectURL(e.target.files[0]);
+            const t = document.getElementById(id);
+            if(t.tagName === 'IMG') t.src = url; else t.innerHTML = `<img src="${url}">`;
+        }
+        function save() {
+            const n = document.getElementById('in-name').value;
+            if(n) document.getElementById('v-name').innerText = n.toUpperCase();
             toggleModal();
         }
-
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
         function toggleModal() { 
-            const m = document.getElementById('settings-modal');
+            const m = document.getElementById('modal');
             m.style.display = (m.style.display === 'flex') ? 'none' : 'flex'; 
         }
-        function setTheme(t) {
-            document.body.className = t ? 'tema-'+t : '';
-        }
+        function setT(t) { document.body.className = t ? 'tema-'+t : ''; }
 
-        auth.onAuthStateChanged(u => { if(u) initApp(u); });
+        auth.onAuthStateChanged(u => { if(u) start(u); });
     </script>
 </body>
 </html>
-
 
 
 
